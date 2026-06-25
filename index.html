@@ -726,7 +726,8 @@
       ["docs", "서류기준", "신청인 유형별 필요서류와 보관서류"],
       ["sim", "업무시뮬레이터", "현재 상황 기반 업무 가능 여부 판단"],
       ["cases", "케이스검토", "자주 발생하는 창구 사례 검토"],
-      ["terms", "용어참고", "업무 중 빠르게 확인하는 용어 사전"]
+      ["terms", "용어참고", "업무 중 빠르게 확인하는 용어 사전"],
+      ["example", "미예시(미성년자예금시연)", "외부 예시 화면", "https://vercel_ibk.app"]
     ];
 
     const docRows = [
@@ -735,7 +736,7 @@
         work: "예금 신규",
         pointTags: ["만 14세 기준", "기본증명서"],
         situation: "미성년자 본인이 본인 명의 예금 신규 신청",
-        need: ["실명확인증표", "학생증, 여권, 청소년증, 청소년증 발급신청 확인서", "실명확인증표에 주민번호 뒷자리가 없으면 주민등록초본 또는 기본증명서 추가 필요"],
+        need: ["실명확인증표", "학생증, 여권, 청소년증, 청소년증 발급신청 확인서", "실명확인증표에 주민번호 뒷자리가 없으면 주민등록등(초)본 또는 기본증명서 추가 필요"],
         keep: ["실명확인증표 사본"],
         check: ["만 14세 이상/미만 여부", "실명확인증표 유효성", "주민번호 뒷자리 표시 여부"],
         caution: "만 14세 미만 단독 신청은 법정대리인 동의 또는 대리 신청 필요 여부를 업무 기준에 따라 확인"
@@ -841,7 +842,7 @@
       ["내부 업무 기준 확인", "처리 가능 여부가 단정되지 않아 기관의 업무 기준을 추가 확인해야 하는 상태"]
     ];
 
-    const submittedDocs = ["미성년자 실명확인증표", "대리인 실명확인증표", "가족관계증명서", "주민등록등본", "주민등록초본", "기본증명서", "친권자 관련 확인서류", "미성년후견 관련 서류", "부모 양방 동의 또는 확인서류", "기타 서류"];
+    const submittedDocs = ["미성년자 실명확인증표", "대리인 실명확인증표", "가족관계증명서", "주민등록등(초)본", "기본증명서", "친권자 관련 확인서류", "미성년후견 관련 서류", "부모 양방 동의 또는 확인서류", "기타 서류"];
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => Array.from(document.querySelectorAll(selector));
     const ul = (items) => `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
@@ -868,10 +869,15 @@
     }
 
     function renderTabs() {
-      const html = tabs.map(([id, label]) => `<button type="button" class="tab-button" data-tab="${id}">${label}</button>`).join("");
+      const html = tabs.map(([id, label,, href]) => href
+        ? `<button type="button" class="tab-button" data-link="${href}">${label}</button>`
+        : `<button type="button" class="tab-button" data-tab="${id}">${label}</button>`).join("");
       $("#sideTabs").innerHTML = html;
       $("#mobileTabs").innerHTML = html;
       $$("[data-tab]").forEach((btn) => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
+      $$("[data-link]").forEach((btn) => btn.addEventListener("click", () => {
+        window.open(btn.dataset.link, "_blank", "noopener,noreferrer");
+      }));
     }
 
     function switchTab(id) {
@@ -916,8 +922,8 @@
             <div class="section-head"><h2>업무 알림</h2><span class="badge check">유의</span></div>
             <div class="notice-list">
               ${[
-                "실명확인증표에 주민번호 뒷자리가 없는 경우 주민등록초본 또는 기본증명서 추가 확인 필요",
-                "대리 신청 시 가족관계확인서류는 가족관계증명서, 주민등록등본, 주민등록초본 등으로 확인 가능",
+                "실명확인증표에 주민번호 뒷자리가 없는 경우 주민등록등(초)본 또는 기본증명서 추가 확인 필요",
+                "대리 신청 시 가족관계확인서류는 가족관계증명서, 주민등록등(초)본 등으로 확인 가능",
                 "미성년자 예금 해지 업무는 신규보다 추가 확인이 필요할 수 있음",
                 "가족 방문 시 법정대리인 권한 확인 필요"
               ].map((item) => `<div class="notice">${item}</div>`).join("")}
@@ -1065,13 +1071,31 @@
         </div>
       `;
       $$("#view-sim .form-grid .field input, #view-sim .form-grid .field select").forEach((input) => input.addEventListener("input", () => {
+        if (input.id === "simApplicant") syncRelationOptions(true);
         $$(".docCheck").forEach((box) => { box.checked = false; });
         updateSim();
       }));
       $("#otherDocDetail").addEventListener("input", updateSim);
       $$(".docCheck").forEach((input) => input.addEventListener("change", updateSim));
       $("#copyReport").addEventListener("click", copyReport);
+      syncRelationOptions(true);
       updateSim();
+    }
+
+    function relationOptionsFor(applicant) {
+      if (applicant === "법정대리인(친권자)") return ["부", "모"];
+      if (applicant === "가족") return ["조부모", "기타 가족"];
+      if (applicant === "법정대리인(미성년후견인)") return ["후견인"];
+      if (applicant === "미성년자 본인") return ["본인"];
+      return ["본인", "모", "부", "조부모", "기타 가족", "후견인", "기타"];
+    }
+
+    function syncRelationOptions(reset = false) {
+      const relationSelect = $("#relation");
+      const current = relationSelect.value;
+      const options = relationOptionsFor($("#simApplicant").value);
+      relationSelect.innerHTML = options.map((option) => `<option>${option}</option>`).join("");
+      relationSelect.value = !reset && options.includes(current) ? current : options[0];
     }
 
     async function copyReport() {
@@ -1097,7 +1121,7 @@
       const base = ["미성년자 실명확인증표"];
       if (applicant !== "미성년자 본인") base.push("대리인 실명확인증표", "가족관계확인서류");
       if (applicant === "법정대리인(미성년후견인)") base.push("미성년후견 관련 서류");
-      if ($("#studentNo").value === "표시 안 됨") base.push("주민등록등(초)본 또는 기본증명서");
+      if ($("#simApplicant").value === "미성년자 본인" && $("#studentNo").value === "표시 안 됨") base.push("주민등록등(초)본 또는 기본증명서");
       if (work === "예금 해지") base.push("부모 양방 동의 또는 확인서류");
       return [...new Set(base)];
     }
@@ -1117,10 +1141,9 @@
       const hasMinorId = selected.includes("미성년자 실명확인증표");
       const hasAgentId = selected.includes("대리인 실명확인증표");
       const hasFamily = selected.includes("가족관계증명서");
-      const hasResidentRegister = selected.includes("주민등록등본");
+      const hasResidentRegister = selected.includes("주민등록등(초)본");
       const hasBasic = selected.includes("기본증명서");
-      const hasResident = selected.includes("주민등록초본");
-      const hasFamilyConfirmDoc = hasFamily || hasResidentRegister || hasResident;
+      const hasFamilyConfirmDoc = hasFamily || hasResidentRegister;
       const hasGuardian = selected.includes("미성년후견 관련 서류");
       const hasBothParents = selected.includes("부모 양방 동의 또는 확인서류");
       const hasOtherDoc = selected.includes("기타 서류");
@@ -1136,7 +1159,7 @@
       if (!hasMinorId) supplement.push("미성년자 실명확인증표");
       if (applicant !== "미성년자 본인" && !hasAgentId) supplement.push("대리인 실명확인증표");
       if (applicant !== "미성년자 본인" && !hasFamilyConfirmDoc) supplement.push("가족관계확인서류");
-      if (studentNo === "표시 안 됨" && !hasResident && !hasBasic && !hasResidentRegister) supplement.push("주민등록등(초)본 또는 기본증명서");
+      if (applicant === "미성년자 본인" && studentNo === "표시 안 됨" && !hasResidentRegister && !hasBasic) supplement.push("주민등록등(초)본 또는 기본증명서");
       if (applicant === "법정대리인(미성년후견인)" && !hasGuardian) supplement.push("미성년후견 관련 서류");
 
       if (age < 14 && applicant === "미성년자 본인") {
@@ -1145,7 +1168,7 @@
       } else if (age >= 14 && applicant === "미성년자 본인") {
         reasons.push("만 14세 이상 본인 방문 건으로 실명확인증표 확인 여부를 기준으로 판단합니다.");
       }
-      if (studentNo === "표시 안 됨") reasons.push("실명확인증표에 주민번호 뒷자리가 없어 주민등록등(초)본 또는 기본증명서 보완 여부를 확인합니다.");
+      if (applicant === "미성년자 본인" && studentNo === "표시 안 됨") reasons.push("실명확인증표에 주민번호 뒷자리가 없어 주민등록등(초)본 또는 기본증명서 보완 여부를 확인합니다.");
       if (["법정대리인(친권자)", "법정대리인(미성년후견인)"].includes(applicant)) {
         reasons.push("신청인과 명의인의 관계 및 친권자·법정대리인 여부가 서류상 명확한지 확인합니다.");
       }
@@ -1153,8 +1176,8 @@
         reasons.push(`${relation} 대리 방문이며 대리인 실명확인증표, 미성년자 실명확인증표, 가족관계확인서류가 확인되었습니다.`);
       }
       if (hasResidentRegister) {
-        reasons.push("가족관계확인서류로 주민등록등본을 제출한 경우 관계 및 친권자 여부 등 추가 확인이 필요합니다.");
-        internalChecks.push("주민등록등본 제출 시 추가 확인");
+        reasons.push("가족관계확인서류로 주민등록등(초)본을 제출한 경우 관계 및 친권자 여부 등 추가 확인이 필요합니다.");
+        internalChecks.push("주민등록등(초)본 제출 시 추가 확인");
         if (applicant === "가족" && relation === "조부모") {
           internalChecks.push("세대주 확인 필요");
         }
@@ -1197,7 +1220,7 @@
       $("#decisionBanner").innerHTML = `<span class="badge ${badgeClass}">${decision}</span><strong>${decision}</strong><p>${reasons[0] || "입력값을 기준으로 업무 가능 여부를 검토합니다."}</p>`;
       $("#autoPoints").innerHTML = ul(reasons);
       $("#docStatus").innerHTML = required.map((doc) => {
-        const done = doc === "주민등록등(초)본 또는 기본증명서" ? hasResidentRegister || hasResident || hasBasic : doc === "가족관계확인서류" ? hasFamilyConfirmDoc : selected.includes(doc);
+        const done = doc === "주민등록등(초)본 또는 기본증명서" ? hasResidentRegister || hasBasic : doc === "가족관계확인서류" ? hasFamilyConfirmDoc : selected.includes(doc);
         const status = done ? ["제출 확인", "done"] : internalChecks.some((item) => doc.includes(item)) || doc.includes("동의") ? ["내부 기준 확인", "internal"] : ["보완 필요", "check"];
         return `<div class="doc-row"><strong>${doc}</strong><span class="badge ${status[1]}">${status[0]}</span></div>`;
       }).join("") + selected.filter((doc) => !required.includes(doc)).map((doc) => `<div class="doc-row"><strong>${doc}</strong><span class="badge">보관 필요</span></div>`).join("");
@@ -1207,9 +1230,8 @@
         "미성년자 실명확인증표": "미성년자 실명확인증표 사본",
         "대리인 실명확인증표": "대리인 실명확인증표 사본",
         "가족관계증명서": "가족관계증명서",
-        "주민등록등본": "주민등록등본",
+        "주민등록등(초)본": "주민등록등(초)본",
         "기본증명서": "기본증명서",
-        "주민등록초본": "주민등록초본",
         "친권자 관련 확인서류": "친권자 관련 확인서류",
         "미성년후견 관련 서류": "미성년후견 관련 서류",
         "부모 양방 동의 또는 확인서류": "부모 양방 동의 또는 확인서류",
