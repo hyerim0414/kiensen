@@ -201,6 +201,19 @@
       font-weight: 800;
     }
 
+    .tab-label-main,
+    .tab-label-sub {
+      display: block;
+      line-height: 1.25;
+    }
+
+    .tab-label-sub {
+      margin-top: 2px;
+      font-size: 12px;
+      font-weight: 700;
+      opacity: 0.82;
+    }
+
     .tab-button:hover { background: rgba(255,255,255,0.08); color: #fff; }
     .tab-button.active { background: #fff; color: var(--ibk-blue); }
 
@@ -273,7 +286,7 @@
       flex: 0 0 auto;
       color: #344054;
       background: #f4f7fb;
-      white-space: nowrap;
+      white-space: normal;
     }
 
     .mobile-tabs .tab-button.active { color: #fff; background: var(--ibk-blue); }
@@ -727,7 +740,7 @@
       ["sim", "업무시뮬레이터", "현재 상황 기반 업무 가능 여부 판단"],
       ["cases", "케이스검토", "자주 발생하는 창구 사례 검토"],
       ["terms", "용어참고", "업무 중 빠르게 확인하는 용어 사전"],
-      ["example", "미예시(미성년자예금가입시연)", "외부 예시 화면", "https://vercel_ibk.app"]
+      ["example", "미예시(미성년자예금가입시연)", "외부 예시 화면", "https://ibk-finance-game.vercel.app/"]
     ];
 
     const docRows = [
@@ -869,9 +882,12 @@
     }
 
     function renderTabs() {
+      const tabLabel = (id, label) => id === "example"
+        ? `<span class="tab-label-main">미예시</span><span class="tab-label-sub">(미성년자예금가입시연)</span>`
+        : label;
       const html = tabs.map(([id, label,, href]) => href
-        ? `<button type="button" class="tab-button" data-link="${href}">${label}</button>`
-        : `<button type="button" class="tab-button" data-tab="${id}">${label}</button>`).join("");
+        ? `<button type="button" class="tab-button" data-link="${href}">${tabLabel(id, label)}</button>`
+        : `<button type="button" class="tab-button" data-tab="${id}">${tabLabel(id, label)}</button>`).join("");
       $("#sideTabs").innerHTML = html;
       $("#mobileTabs").innerHTML = html;
       $$("[data-tab]").forEach((btn) => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
