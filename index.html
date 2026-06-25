@@ -778,7 +778,7 @@
         type: "본인",
         situation: "만 15세 명의인이 혼자 방문해 입출금통장 신규 요청",
         point: ["만 14세 이상 여부", "실명확인증표 유효성", "실명확인증표 주민번호 뒷자리 표시 여부"],
-        need: ["학생증, 여권, 청소년증 등 실명확인증표", "실명확인증표에 주민번호 뒷자리가 없으면 주민등록초본 또는 기본증명서 추가"],
+        need: ["학생증, 여권, 청소년증 등 실명확인증표", "실명확인증표에 주민번호 뒷자리가 없으면 주민등록등(초)본 또는 기본증명서 추가"],
         keep: ["실명확인증표 사본"],
         opinion: "본인 확인이 가능하고 내부 기준상 제한이 없으면 처리 가능 검토",
         caution: "업무 기준에 따라 추가 확인 필요"
@@ -1097,7 +1097,7 @@
       const base = ["미성년자 실명확인증표"];
       if (applicant !== "미성년자 본인") base.push("대리인 실명확인증표", "가족관계확인서류");
       if (applicant === "법정대리인(미성년후견인)") base.push("미성년후견 관련 서류");
-      if ($("#studentNo").value === "표시 안 됨") base.push("주민등록초본 또는 기본증명서");
+      if ($("#studentNo").value === "표시 안 됨") base.push("주민등록등(초)본 또는 기본증명서");
       if (work === "예금 해지") base.push("부모 양방 동의 또는 확인서류");
       return [...new Set(base)];
     }
@@ -1120,6 +1120,7 @@
       const hasResidentRegister = selected.includes("주민등록등본");
       const hasBasic = selected.includes("기본증명서");
       const hasResident = selected.includes("주민등록초본");
+      const hasResidents = selected.includes("주민등록등본");
       const hasFamilyConfirmDoc = hasFamily || hasResidentRegister || hasResident;
       const hasGuardian = selected.includes("미성년후견 관련 서류");
       const hasBothParents = selected.includes("부모 양방 동의 또는 확인서류");
@@ -1136,7 +1137,7 @@
       if (!hasMinorId) supplement.push("미성년자 실명확인증표");
       if (applicant !== "미성년자 본인" && !hasAgentId) supplement.push("대리인 실명확인증표");
       if (applicant !== "미성년자 본인" && !hasFamilyConfirmDoc) supplement.push("가족관계확인서류");
-      if (studentNo === "표시 안 됨" && !hasResident && !hasBasic) supplement.push("주민등록초본 또는 기본증명서");
+      if (studentNo === "표시 안 됨" && !hasResident && !hasBasic && !hasResidents) supplement.push("주민등록초본 또는 기본증명서");
       if (applicant === "법정대리인(미성년후견인)" && !hasGuardian) supplement.push("미성년후견 관련 서류");
 
       if (age < 14 && applicant === "미성년자 본인") {
