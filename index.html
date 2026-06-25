@@ -364,6 +364,7 @@
     .badge.new { color: #0054a6; background: #eaf5ff; }
     .badge.close { color: #b42318; background: #fff0f0; }
     .badge.review { color: #6c4a00; background: #fff6df; }
+    .badge.internal { color: #c2410c; background: #ffedd5; }
 
     .notice {
       padding: 12px;
@@ -383,6 +384,67 @@
     }
 
     .quick-actions .btn { min-height: 52px; }
+
+    .home-launch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      min-height: calc(100vh - 160px);
+      align-content: center;
+    }
+
+    .home-launch-card {
+      min-height: 280px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 18px 44px rgba(20, 38, 72, 0.1);
+      padding: 28px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: var(--ink);
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .home-launch-card:hover {
+      transform: translateY(-3px);
+      border-color: #9ec7ec;
+      box-shadow: 0 24px 58px rgba(20, 38, 72, 0.14);
+    }
+
+    .home-launch-card strong {
+      display: block;
+      margin: 16px 0 10px;
+      font-size: 28px;
+      color: var(--navy);
+      letter-spacing: 0;
+    }
+
+    .home-launch-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    .home-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      background: var(--blue-soft);
+      color: var(--ibk-blue);
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .home-launch-card .badge {
+      align-self: flex-start;
+      margin-top: 22px;
+    }
 
     .criteria-pill {
       border: 1px solid #d8e7f7;
@@ -574,7 +636,7 @@
     .term-card p { margin: 0; color: #475467; line-height: 1.6; }
 
     @media (max-width: 1100px) {
-      .grid-4, .quick-actions, .term-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-4, .quick-actions, .term-grid, .home-launch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .layout-main, .sim-grid { grid-template-columns: 1fr; }
       .filters { grid-template-columns: 1fr 1fr; }
     }
@@ -595,7 +657,7 @@
     }
 
     @media (max-width: 480px) {
-      .quick-actions, .grid-4, .term-grid { grid-template-columns: 1fr; }
+      .quick-actions, .grid-4, .term-grid, .home-launch-grid { grid-template-columns: 1fr; }
       .login-panel { padding: 20px; }
       .status-item, .doc-row { grid-template-columns: 1fr; }
     }
@@ -779,7 +841,7 @@
       ["내부 업무 기준 확인", "처리 가능 여부가 단정되지 않아 기관의 업무 기준을 추가 확인해야 하는 상태"]
     ];
 
-    const submittedDocs = ["미성년자 실명확인증표", "대리인 실명확인증표", "가족관계증명서", "기본증명서", "주민등록초본", "법정대리인 확인서류", "친권자 관련 확인서류", "미성년후견 관련 서류", "부모 양방 동의 또는 확인서류"];
+    const submittedDocs = ["미성년자 실명확인증표", "대리인 실명확인증표", "가족관계증명서", "주민등록등본", "주민등록초본", "기본증명서", "친권자 관련 확인서류", "미성년후견 관련 서류", "부모 양방 동의 또는 확인서류", "기타 서류"];
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => Array.from(document.querySelectorAll(selector));
     const ul = (items) => `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
@@ -827,7 +889,7 @@
         <div class="grid-4">
           ${[
             ["금일 미성년자 예금 신규 건수", "18", "전일 대비 +3"],
-            ["금일 대리인 신청 건수", "11", "친권자 신청 7건"],
+            ["금일 대리인 신청 건수", "11", "법정대리인 신청 7건"],
             ["보완서류 요청 건수", "4", "기본증명서 확인 포함"],
             ["처리 보류 건수", "2", "내부 기준 확인 중"]
           ].map(([label, value, note]) => `<div class="metric-card"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>`).join("")}
@@ -855,7 +917,7 @@
             <div class="notice-list">
               ${[
                 "실명확인증표에 주민번호 뒷자리가 없는 경우 주민등록초본 또는 기본증명서 추가 확인 필요",
-                "가족관계증명서는 발급 기준자에 따라 확인 가능한 관계가 달라질 수 있음",
+                "대리 신청 시 가족관계확인서류는 가족관계증명서, 주민등록등본, 주민등록초본 등으로 확인 가능",
                 "미성년자 예금 해지 업무는 신규보다 추가 확인이 필요할 수 있음",
                 "가족 방문 시 법정대리인 권한 확인 필요"
               ].map((item) => `<div class="notice">${item}</div>`).join("")}
@@ -865,7 +927,7 @@
         <div class="panel" style="margin-top:14px">
           <div class="section-head"><h2>최근 확인한 기준</h2><span class="badge">빠른 참고</span></div>
           <div class="criteria-list grid-3">
-            ${["만 14세 이상 본인 신청", "법정대리인 대리 신청", "가족 신청", "법정대리인 확인", "예금 해지 시 부모 양방 확인"].map((item) => `<button class="criteria-pill" data-jump="docs">${item}</button>`).join("")}
+            ${["만 14세 이상 본인 신청", "법정대리인 대리 신청", "가족 신청", "가족관계확인서류", "예금 해지 시 부모 양방 확인"].map((item) => `<button class="criteria-pill" data-jump="docs">${item}</button>`).join("")}
           </div>
         </div>
       `;
@@ -956,6 +1018,10 @@
             <div class="check-grid">
               ${submittedDocs.map((doc) => `<label class="check-option"><input type="checkbox" value="${doc}" class="docCheck"><span>${doc}</span></label>`).join("")}
             </div>
+            <div class="field" style="margin-top:10px">
+              <label>기타 서류 상세</label>
+              <input id="otherDocDetail" placeholder="기타 서류 선택 시 직접 입력" />
+            </div>
           </div>
           <div class="result-stack">
             <div class="result-box">
@@ -998,10 +1064,11 @@
           </div>
         </div>
       `;
-      $$("#view-sim .field input, #view-sim .field select").forEach((input) => input.addEventListener("input", () => {
+      $$("#view-sim .form-grid .field input, #view-sim .form-grid .field select").forEach((input) => input.addEventListener("input", () => {
         $$(".docCheck").forEach((box) => { box.checked = false; });
         updateSim();
       }));
+      $("#otherDocDetail").addEventListener("input", updateSim);
       $$(".docCheck").forEach((input) => input.addEventListener("change", updateSim));
       $("#copyReport").addEventListener("click", copyReport);
       updateSim();
@@ -1028,9 +1095,7 @@
       const applicant = $("#simApplicant").value;
       const work = $("#simWork").value;
       const base = ["미성년자 실명확인증표"];
-      if (applicant !== "미성년자 본인") base.push("대리인 실명확인증표", "가족관계증명서");
-      if (applicant === "가족") base.push("친권자 관련 확인서류");
-      if (applicant === "법정대리인(친권자)") base.push("법정대리인 확인서류");
+      if (applicant !== "미성년자 본인") base.push("대리인 실명확인증표", "가족관계확인서류");
       if (applicant === "법정대리인(미성년후견인)") base.push("미성년후견 관련 서류");
       if ($("#studentNo").value === "표시 안 됨") base.push("주민등록초본 또는 기본증명서");
       if (work === "예금 해지") base.push("부모 양방 동의 또는 확인서류");
@@ -1041,6 +1106,7 @@
       const age = Number($("#age").value || 0);
       const applicant = $("#simApplicant").value;
       const otherApplicant = ($("#otherApplicant")?.value || "").trim();
+      const otherDocDetail = ($("#otherDocDetail")?.value || "").trim();
       const relation = $("#relation").value;
       const work = $("#simWork").value;
       const studentNo = $("#studentNo").value;
@@ -1051,12 +1117,13 @@
       const hasMinorId = selected.includes("미성년자 실명확인증표");
       const hasAgentId = selected.includes("대리인 실명확인증표");
       const hasFamily = selected.includes("가족관계증명서");
+      const hasResidentRegister = selected.includes("주민등록등본");
       const hasBasic = selected.includes("기본증명서");
       const hasResident = selected.includes("주민등록초본");
-      const hasLegal = selected.includes("법정대리인 확인서류");
-      const hasCustody = selected.includes("친권자 관련 확인서류");
+      const hasFamilyConfirmDoc = hasFamily || hasResidentRegister || hasResident;
       const hasGuardian = selected.includes("미성년후견 관련 서류");
       const hasBothParents = selected.includes("부모 양방 동의 또는 확인서류");
+      const hasOtherDoc = selected.includes("기타 서류");
       const reasons = [];
       const supplement = [];
       const internalChecks = [];
@@ -1068,10 +1135,8 @@
 
       if (!hasMinorId) supplement.push("미성년자 실명확인증표");
       if (applicant !== "미성년자 본인" && !hasAgentId) supplement.push("대리인 실명확인증표");
-      if (applicant !== "미성년자 본인" && !hasFamily) supplement.push("가족관계증명서");
+      if (applicant !== "미성년자 본인" && !hasFamilyConfirmDoc) supplement.push("가족관계확인서류");
       if (studentNo === "표시 안 됨" && !hasResident && !hasBasic) supplement.push("주민등록초본 또는 기본증명서");
-      if (applicant === "법정대리인(친권자)" && !hasLegal) supplement.push("법정대리인 확인서류");
-      if (applicant === "가족" && !hasCustody) supplement.push("친권자 관련 확인서류");
       if (applicant === "법정대리인(미성년후견인)" && !hasGuardian) supplement.push("미성년후견 관련 서류");
 
       if (age < 14 && applicant === "미성년자 본인") {
@@ -1084,12 +1149,22 @@
       if (["법정대리인(친권자)", "법정대리인(미성년후견인)"].includes(applicant)) {
         reasons.push("신청인과 명의인의 관계 및 친권자·법정대리인 여부가 서류상 명확한지 확인합니다.");
       }
-      if (applicant === "법정대리인(친권자)" && ["모", "부"].includes(relation) && hasAgentId && hasMinorId && hasFamily) {
+      if (applicant === "법정대리인(친권자)" && ["모", "부"].includes(relation) && hasAgentId && hasMinorId && hasFamilyConfirmDoc) {
         reasons.push(`${relation} 대리 방문이며 대리인 실명확인증표, 미성년자 실명확인증표, 가족관계확인서류가 확인되었습니다.`);
       }
+      if (hasResidentRegister) {
+        reasons.push("가족관계확인서류로 주민등록등본을 제출한 경우 관계 및 친권자 여부 등 추가 확인이 필요합니다.");
+        internalChecks.push("주민등록등본 제출 시 추가 확인");
+        if (applicant === "가족" && relation === "조부모") {
+          internalChecks.push("세대주 확인 필요");
+        }
+      }
+      if (hasOtherDoc) {
+        reasons.push(`기타 서류가 제출되었습니다${otherDocDetail ? `: ${otherDocDetail}` : "."}`);
+        internalChecks.push("기타 서류 적정성 확인");
+      }
       if (applicant === "가족" || relation === "조부모") {
-        reasons.push("가족 신청 건으로 법정대리인 권한 및 친권자 관련 확인서류 확인이 필요합니다.");
-        internalChecks.push("가족관계증명서 발급 기준자 확인");
+        reasons.push("가족 신청 건으로 법정대리인 권한 및 친권자 동의 필요 여부 확인이 필요합니다.");
         internalChecks.push("법정대리인 권한 또는 친권자 동의 필요 여부");
       }
       if (familyBase !== "해당 없음") {
@@ -1110,7 +1185,7 @@
         reasons.push("필수 실명확인증표가 누락되어 본인 확인이 어렵습니다.");
       } else if (blockingInternal) {
         decision = supplement.length ? "보완서류 필요" : "내부 업무 기준 확인 필요";
-        badgeClass = supplement.length ? "check" : "";
+        badgeClass = supplement.length ? "check" : "internal";
       } else if (supplement.length) {
         decision = "보완서류 필요";
         badgeClass = "check";
@@ -1122,13 +1197,25 @@
       $("#decisionBanner").innerHTML = `<span class="badge ${badgeClass}">${decision}</span><strong>${decision}</strong><p>${reasons[0] || "입력값을 기준으로 업무 가능 여부를 검토합니다."}</p>`;
       $("#autoPoints").innerHTML = ul(reasons);
       $("#docStatus").innerHTML = required.map((doc) => {
-        const done = doc === "주민등록초본 또는 기본증명서" ? hasResident || hasBasic : selected.includes(doc);
-        const status = done ? ["제출 확인", "done"] : internalChecks.some((item) => doc.includes(item)) || doc.includes("동의") ? ["내부 기준 확인", ""] : ["보완 필요", "check"];
+        const done = doc === "주민등록초본 또는 기본증명서" ? hasResident || hasBasic : doc === "가족관계확인서류" ? hasFamilyConfirmDoc : selected.includes(doc);
+        const status = done ? ["제출 확인", "done"] : internalChecks.some((item) => doc.includes(item)) || doc.includes("동의") ? ["내부 기준 확인", "internal"] : ["보완 필요", "check"];
         return `<div class="doc-row"><strong>${doc}</strong><span class="badge ${status[1]}">${status[0]}</span></div>`;
-      }).join("") + selected.filter((doc) => !required.includes(doc)).map((doc) => `<div class="doc-row"><strong>${doc}</strong><span class="badge">보관 필요</span></div>`).join("") + internalChecks.map((item) => `<div class="doc-row"><strong>${item}</strong><span class="badge">내부 기준 확인</span></div>`).join("");
+      }).join("") + selected.filter((doc) => !required.includes(doc)).map((doc) => `<div class="doc-row"><strong>${doc}</strong><span class="badge">보관 필요</span></div>`).join("");
 
       const confirmed = selected.length ? selected.join(", ") : "없음";
-      const keepDocs = selected.filter((doc) => ["미성년자 실명확인증표", "대리인 실명확인증표", "가족관계증명서", "기본증명서", "법정대리인 확인서류", "친권자 관련 확인서류", "미성년후견 관련 서류", "부모 양방 동의 또는 확인서류"].includes(doc));
+      const keepDocMap = {
+        "미성년자 실명확인증표": "미성년자 실명확인증표 사본",
+        "대리인 실명확인증표": "대리인 실명확인증표 사본",
+        "가족관계증명서": "가족관계증명서",
+        "주민등록등본": "주민등록등본",
+        "기본증명서": "기본증명서",
+        "주민등록초본": "주민등록초본",
+        "친권자 관련 확인서류": "친권자 관련 확인서류",
+        "미성년후견 관련 서류": "미성년후견 관련 서류",
+        "부모 양방 동의 또는 확인서류": "부모 양방 동의 또는 확인서류",
+        "기타 서류": otherDocDetail ? `기타 서류(${otherDocDetail})` : "기타 서류"
+      };
+      const keepDocs = selected.map((doc) => keepDocMap[doc]).filter(Boolean);
       const uniqueSupplement = [...new Set(supplement)];
       const uniqueChecks = [...new Set(internalChecks)];
       $("#submittedList").innerHTML = selected.length ? ul(selected) : "제출 확인된 서류 없음";
@@ -1140,6 +1227,7 @@
 명의인 나이: 만 ${age}세
 신청인 유형: ${applicant}
 기타 신청인 상세: ${applicant === "기타" ? (otherApplicant || "미입력") : "해당 없음"}
+기타 서류 상세: ${hasOtherDoc ? (otherDocDetail || "미입력") : "해당 없음"}
 신청인 관계: ${relation}
 업무 유형: ${work}
 가족관계증명서 발급 기준자: ${familyBase}
