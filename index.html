@@ -361,6 +361,9 @@
     .badge.check { color: #936400; background: var(--yellow-soft); }
     .badge.hold { color: #b42318; background: var(--red-soft); }
     .badge.dark { color: #fff; background: var(--navy); }
+    .badge.new { color: #0054a6; background: #eaf5ff; }
+    .badge.close { color: #b42318; background: #fff0f0; }
+    .badge.review { color: #6c4a00; background: #fff6df; }
 
     .notice {
       padding: 12px;
@@ -489,6 +492,16 @@
     }
 
     .result-box h4 { margin: 0 0 9px; color: var(--navy); }
+    .box-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 9px;
+    }
+
+    .box-head h4 { margin: 0; }
+
     .doc-status { display: grid; gap: 7px; }
     .doc-row {
       display: grid;
@@ -883,7 +896,7 @@
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>신청인 유형</th><th>상황</th><th>필요서류</th><th>보관서류</th><th>주요 확인사항</th><th>업무상 유의사항</th></tr></thead>
+              <thead><tr><th>업무 유형</th><th>신청인 유형</th><th>상황</th><th>필요서류</th><th>보관서류</th><th>주요 확인사항</th><th>업무상 유의사항</th></tr></thead>
               <tbody id="docTable"></tbody>
             </table>
           </div>
@@ -891,6 +904,12 @@
       `;
       ["docSearch", "applicantFilter", "workFilter", "pointFilter"].forEach((id) => $(`#${id}`).addEventListener("input", filterDocs));
       filterDocs();
+    }
+
+    function workBadgeClass(work) {
+      if (work === "예금 신규") return "new";
+      if (work === "예금 해지") return "close";
+      return "review";
     }
 
     function filterDocs() {
@@ -907,14 +926,15 @@
       });
       $("#docTable").innerHTML = rows.length ? rows.map((row) => `
         <tr>
-          <td><strong>${row.applicant}</strong><br><span class="badge">${row.work}</span></td>
+          <td><span class="badge ${workBadgeClass(row.work)}">${row.work}</span></td>
+          <td><strong>${row.applicant}</strong></td>
           <td>${row.situation}</td>
           <td>${ul(row.need)}</td>
           <td>${ul(row.keep)}</td>
           <td>${ul(row.check)}</td>
           <td>${row.caution}</td>
         </tr>
-      `).join("") : `<tr><td colspan="6">검색 조건에 맞는 기준이 없습니다.</td></tr>`;
+      `).join("") : `<tr><td colspan="7">검색 조건에 맞는 기준이 없습니다.</td></tr>`;
     }
 
     function renderSimulator() {
@@ -970,7 +990,10 @@
             </div>
           </div>
           <div class="result-box report-panel">
-            <h4>실시간 업무 메모 요약</h4>
+            <div class="box-head">
+              <h4>실시간 업무 메모 요약</h4>
+              <button class="btn secondary small" type="button" id="copyReport">메모 복사</button>
+            </div>
             <div class="report" id="report">입력값과 제출서류 변경 시 업무 메모가 자동 갱신됩니다.</div>
           </div>
         </div>
@@ -980,7 +1003,25 @@
         updateSim();
       }));
       $$(".docCheck").forEach((input) => input.addEventListener("change", updateSim));
+      $("#copyReport").addEventListener("click", copyReport);
       updateSim();
+    }
+
+    async function copyReport() {
+      const text = $("#report").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        $("#copyReport").textContent = "복사 완료";
+      } catch (error) {
+        const area = document.createElement("textarea");
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+        $("#copyReport").textContent = "복사 완료";
+      }
+      setTimeout(() => { $("#copyReport").textContent = "메모 복사"; }, 1400);
     }
 
     function requiredDocsForSim() {
