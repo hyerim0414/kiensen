@@ -1145,7 +1145,7 @@
       } else if (age >= 14 && applicant === "미성년자 본인") {
         reasons.push("만 14세 이상 본인 방문 건으로 실명확인증표 확인 여부를 기준으로 판단합니다.");
       }
-      if (studentNo === "표시 안 됨") reasons.push("실명확인증표에 주민번호 뒷자리가 없어 주민등록초본 또는 기본증명서 보완 여부를 확인합니다.");
+      if (studentNo === "표시 안 됨") reasons.push("실명확인증표에 주민번호 뒷자리가 없어 주민등록등(초)본 또는 기본증명서 보완 여부를 확인합니다.");
       if (["법정대리인(친권자)", "법정대리인(미성년후견인)"].includes(applicant)) {
         reasons.push("신청인과 명의인의 관계 및 친권자·법정대리인 여부가 서류상 명확한지 확인합니다.");
       }
@@ -1197,7 +1197,7 @@
       $("#decisionBanner").innerHTML = `<span class="badge ${badgeClass}">${decision}</span><strong>${decision}</strong><p>${reasons[0] || "입력값을 기준으로 업무 가능 여부를 검토합니다."}</p>`;
       $("#autoPoints").innerHTML = ul(reasons);
       $("#docStatus").innerHTML = required.map((doc) => {
-        const done = doc === "주민등록초본 또는 기본증명서" ? hasResident || hasBasic : doc === "가족관계확인서류" ? hasFamilyConfirmDoc : selected.includes(doc);
+        const done = doc === "주민등록등(초)본 또는 기본증명서" ? hasResidentRegister || hasResident || hasBasic : doc === "가족관계확인서류" ? hasFamilyConfirmDoc : selected.includes(doc);
         const status = done ? ["제출 확인", "done"] : internalChecks.some((item) => doc.includes(item)) || doc.includes("동의") ? ["내부 기준 확인", "internal"] : ["보완 필요", "check"];
         return `<div class="doc-row"><strong>${doc}</strong><span class="badge ${status[1]}">${status[0]}</span></div>`;
       }).join("") + selected.filter((doc) => !required.includes(doc)).map((doc) => `<div class="doc-row"><strong>${doc}</strong><span class="badge">보관 필요</span></div>`).join("");
