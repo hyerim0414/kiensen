@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IBK 예금 업무지원시스템</title>
+  <style>
+    :root {
+      --ibk-blue: #0054a6;
+      --ibk-sky: #00a6e8;
+      --navy: #17233c;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9e2ef;
+      --bg: #f3f6fa;
+      --panel: #ffffff;
+      --soft: #f7faff;
+      --blue-soft: #eaf5ff;
+      --green-soft: #e9f7ef;
+      --yellow-soft: #fff6df;
+      --red-soft: #fff0f0;
+      --shadow: 0 18px 44px rgba(20, 38, 72, 0.1);
+      --radius: 8px;
+      font-family: Inter, Pretendard, "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--bg); letter-spacing: 0; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+
+    .login-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      background:
+        linear-gradient(135deg, rgba(0, 84, 166, 0.95), rgba(0, 166, 232, 0.82)),
+        linear-gradient(180deg, #f4f7fb, #ffffff);
+    }
+
+    .login-info {
+      color: #fff;
+      padding: 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+    }
+
+    .system-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: block;
+      object-fit: contain;
+      background: transparent;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .login-copy h1 {
+      margin: 0 0 16px;
+      max-width: 650px;
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .login-copy p {
+      max-width: 650px;
+      margin: 0;
+      color: rgba(255, 255, 255, 0.86);
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    .login-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 650px;
+    }
+
+    .login-meta div {
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius);
+      padding: 14px;
+      min-height: 88px;
+    }
+
+    .login-meta strong { display: block; font-size: 21px; margin-bottom: 4px; }
+    .login-meta span { color: rgba(255, 255, 255, 0.78); font-size: 13px; line-height: 1.45; }
+
+    .login-panel-wrap {
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background:
+        radial-gradient(circle at 90% 12%, rgba(0, 166, 232, 0.13), transparent 28rem),
+        #f8fbff;
+    }
+
+    .login-panel {
+      width: min(430px, 100%);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    .login-panel h2 { margin: 0 0 8px; font-size: 24px; }
+    .login-panel .caption { margin: 0 0 22px; color: var(--muted); line-height: 1.55; }
+
+    .field { display: grid; gap: 7px; margin-bottom: 14px; }
+    .field label { font-size: 13px; color: #344054; font-weight: 800; }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cfd9e8;
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 11px 12px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--ibk-blue);
+      box-shadow: 0 0 0 3px rgba(0, 84, 166, 0.12);
+    }
+
+    .error {
+      min-height: 24px;
+      margin: 2px 0 10px;
+      color: #b42318;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: var(--radius);
+      min-height: 42px;
+      padding: 10px 13px;
+      background: var(--navy);
+      color: #fff;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(20, 38, 72, 0.16); }
+    .btn.primary { background: linear-gradient(135deg, var(--ibk-blue), var(--ibk-sky)); }
+    .btn.secondary { background: #fff; color: var(--ibk-blue); border: 1px solid #c7d8eb; }
+    .btn.ghost { background: transparent; color: var(--ibk-blue); border: 1px solid transparent; }
+    .btn.full { width: 100%; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 236px 1fr;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: #10213c;
+      color: #fff;
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .sidebar .system-brand { padding: 4px 6px 12px; border-bottom: 1px solid rgba(255,255,255,0.14); }
+    .sidebar .brand-mark { width: 34px; height: 34px; box-shadow: none; }
+    .nav-tabs { display: grid; gap: 6px; }
+
+    .tab-button {
+      width: 100%;
+      border: 0;
+      border-radius: var(--radius);
+      padding: 12px 12px;
+      color: rgba(255, 255, 255, 0.78);
+      background: transparent;
+      text-align: left;
+      font-weight: 800;
+    }
+
+    .tab-button:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .tab-button.active { background: #fff; color: var(--ibk-blue); }
+
+    .sidebar-foot {
+      margin-top: auto;
+      padding: 12px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.8);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .content {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      min-height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 28px;
+      background: rgba(243, 246, 250, 0.88);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .page-title { min-width: 0; }
+    .page-title h1 { margin: 0; font-size: 22px; letter-spacing: 0; }
+    .page-title p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      color: #344054;
+      font-size: 14px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--blue-soft);
+      color: var(--ibk-blue);
+      font-weight: 900;
+    }
+
+    .mobile-tabs {
+      display: none;
+      overflow-x: auto;
+      gap: 6px;
+      padding: 10px 14px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mobile-tabs .tab-button {
+      width: auto;
+      flex: 0 0 auto;
+      color: #344054;
+      background: #f4f7fb;
+      white-space: nowrap;
+    }
+
+    .mobile-tabs .tab-button.active { color: #fff; background: var(--ibk-blue); }
+
+    .workspace {
+      width: min(1280px, 100%);
+      margin: 0 auto;
+      padding: 24px 28px 42px;
+    }
+
+    .view { display: none; animation: fadeIn 180ms ease; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    h2 { margin: 0; font-size: 22px; letter-spacing: 0; }
+    h3 { margin: 0 0 10px; font-size: 17px; }
+    .muted { color: var(--muted); line-height: 1.6; }
+
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+
+    .panel, .metric-card, .case-card, .term-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 28px rgba(20, 38, 72, 0.055);
+    }
+
+    .panel { padding: 18px; }
+    .metric-card { padding: 16px; min-height: 118px; display: flex; flex-direction: column; justify-content: space-between; }
+    .metric-card span { color: var(--muted); font-size: 13px; font-weight: 800; }
+    .metric-card strong { font-size: 30px; color: var(--navy); }
+    .metric-card small { color: #667085; }
+
+    .layout-main {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .status-list, .notice-list, .quick-list, .criteria-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .status-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid #edf1f6;
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .status-item strong { display: block; margin-bottom: 4px; }
+    .status-item span { color: var(--muted); font-size: 13px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      padding: 4px 9px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+      color: var(--ibk-blue);
+      background: var(--blue-soft);
+    }
+
+    .badge.done { color: #067647; background: var(--green-soft); }
+    .badge.check { color: #936400; background: var(--yellow-soft); }
+    .badge.hold { color: #b42318; background: var(--red-soft); }
+    .badge.dark { color: #fff; background: var(--navy); }
+
+    .notice {
+      padding: 12px;
+      background: #fffaf0;
+      border: 1px solid #f4d28b;
+      border-radius: var(--radius);
+      line-height: 1.55;
+      color: #664500;
+      font-size: 14px;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .quick-actions .btn { min-height: 52px; }
+
+    .criteria-pill {
+      border: 1px solid #d8e7f7;
+      background: #f7fbff;
+      color: #24415f;
+      border-radius: var(--radius);
+      padding: 11px 12px;
+      text-align: left;
+      font-weight: 800;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1.2fr repeat(3, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .table-wrap {
+      max-width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 13px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.52;
+      font-size: 14px;
+    }
+
+    th { background: #eef5fc; color: #2b3b52; font-size: 13px; }
+    tr:last-child td { border-bottom: 0; }
+    td ul, .panel ul { margin: 0; padding-left: 18px; }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .step-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 18px 0 10px;
+      color: var(--navy);
+      font-weight: 900;
+    }
+
+    .step-label:first-child { margin-top: 0; }
+    .step-no {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: var(--ibk-blue);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .check-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: var(--radius);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .check-option input { width: auto; margin-top: 3px; accent-color: var(--ibk-blue); }
+
+    .result-stack { display: grid; gap: 12px; }
+    .result-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .result-box {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .report-panel {
+      grid-column: 1 / -1;
+    }
+
+    .result-box h4 { margin: 0 0 9px; color: var(--navy); }
+    .doc-status { display: grid; gap: 7px; }
+    .doc-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 9px 10px;
+      background: var(--soft);
+      border-radius: var(--radius);
+    }
+
+    .report {
+      white-space: pre-wrap;
+      background: #0f1e35;
+      color: #edf6ff;
+      border-radius: var(--radius);
+      padding: 14px;
+      line-height: 1.7;
+      font-size: 13px;
+    }
+
+    .case-tools {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .case-filter {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 9px 11px;
+      color: #344054;
+      font-weight: 800;
+    }
+
+    .case-filter.active { background: var(--ibk-blue); color: #fff; border-color: var(--ibk-blue); }
+    .case-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .case-card { padding: 16px; }
+    .case-card p { margin: 0 0 11px; color: var(--muted); line-height: 1.58; }
+    .case-card dl { display: grid; gap: 10px; margin: 0; }
+    .case-card dt { font-weight: 900; color: var(--navy); margin-bottom: 3px; }
+    .case-card dd { margin: 0; color: #475467; line-height: 1.55; }
+
+    .decision-banner {
+      display: grid;
+      gap: 8px;
+      border-radius: var(--radius);
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: #f8fbff;
+    }
+
+    .decision-banner strong { font-size: 20px; color: var(--navy); }
+    .decision-banner p { margin: 0; color: #475467; line-height: 1.58; }
+
+    .terms-header {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .term-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .term-card { padding: 16px; min-height: 130px; }
+    .term-card strong { display: block; margin-bottom: 8px; color: var(--navy); }
+    .term-card p { margin: 0; color: #475467; line-height: 1.6; }
+
+    @media (max-width: 1100px) {
+      .grid-4, .quick-actions, .term-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .layout-main, .sim-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 820px) {
+      .login-page { grid-template-columns: 1fr; }
+      .login-info { min-height: auto; padding: 32px 20px; gap: 28px; }
+      .login-meta { grid-template-columns: 1fr; }
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .mobile-tabs { display: flex; }
+      .topbar { padding: 12px 14px; align-items: flex-start; flex-direction: column; }
+      .workspace { padding: 18px 14px 34px; }
+      .grid-3, .grid-2, .case-grid { grid-template-columns: 1fr; }
+      .filters, .form-grid, .check-grid, .terms-header { grid-template-columns: 1fr; }
+      .quick-actions { grid-template-columns: 1fr 1fr; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (max-width: 480px) {
+      .quick-actions, .grid-4, .term-grid { grid-template-columns: 1fr; }
+      .login-panel { padding: 20px; }
+      .status-item, .doc-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <section class="login-page" id="loginPage">
+    <div class="login-info">
+      <div class="system-brand"><img class="brand-mark" src="ibk-logo.png" alt="IBK" /><span>IBK기업은행</span></div>
+      <div class="login-copy">
+        <h1>예금 업무지원시스템</h1>
+        <p>신청인 유형, 미성년자 나이, 가족관계 확인 기준, 법정대리인 여부를 한 화면에서 점검하는 직원용 업무 보조 시스템입니다.</p>
+      </div>
+      <div class="login-meta">
+        <div><strong>14세</strong><span>미성년자 본인 단독 신청 검토 기준</span></div>
+        <div><strong>2명</strong><span>법정대리인은 일반적으로 등록 친권자인 부모</span></div>
+        <div><strong>기준자</strong><span>가족관계증명서 발급 기준자 확인 필요</span></div>
+      </div>
+    </div>
+    <div class="login-panel-wrap">
+      <form class="login-panel" id="loginForm">
+        <h2>업무 시스템 로그인</h2>
+        <p class="caption">직원 계정으로 로그인 후 업무지원 메뉴를 이용하세요.</p>
+        <div class="field">
+          <label for="loginId">아이디</label>
+          <input id="loginId" autocomplete="username" placeholder="아이디 입력" />
+        </div>
+        <div class="field">
+          <label for="loginPw">비밀번호</label>
+          <input id="loginPw" type="password" autocomplete="current-password" placeholder="비밀번호 입력" />
+        </div>
+        <div class="error" id="loginError"></div>
+        <button class="btn primary full" type="submit">로그인</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="app hidden" id="app">
+    <aside class="sidebar">
+      <div class="system-brand"><img class="brand-mark" src="ibk-logo.png" alt="IBK" /><span>예금 업무지원시스템</span></div>
+      <nav class="nav-tabs" id="sideTabs"></nav>
+      <div class="sidebar-foot">본 화면은 참고자료 기반 업무 보조 도구입니다. 실제 처리 가능 여부는 내부 업무 기준에 따라 추가 확인이 필요합니다.</div>
+    </aside>
+    <div class="content">
+      <header class="topbar">
+        <div class="page-title">
+          <h1 id="viewTitle">메인</h1>
+          <p id="viewCaption">미성년자 예금 신규 및 관련 업무 현황</p>
+        </div>
+        <div class="user-chip"><span class="avatar">찬</span><span>IBK찬란</span><button class="btn secondary" id="logoutBtn" type="button">로그아웃</button></div>
+      </header>
+      <nav class="mobile-tabs" id="mobileTabs"></nav>
+      <main class="workspace">
+        <section class="view active" id="view-main"></section>
+        <section class="view" id="view-docs"></section>
+        <section class="view" id="view-sim"></section>
+        <section class="view" id="view-cases"></section>
+        <section class="view" id="view-terms"></section>
+      </main>
+    </div>
+  </section>
+
+  <script>
+    const tabs = [
+      ["main", "메인", "미성년자 예금 신규 및 관련 업무 현황"],
+      ["docs", "서류기준", "신청인 유형별 필요서류와 보관서류"],
+      ["sim", "업무시뮬레이터", "현재 상황 기반 업무 가능 여부 판단"],
+      ["cases", "케이스검토", "자주 발생하는 창구 사례 검토"],
+      ["terms", "용어참고", "업무 중 빠르게 확인하는 용어 사전"]
+    ];
+
+    const docRows = [
+      {
+        applicant: "미성년자 본인",
+        work: "예금 신규",
+        pointTags: ["만 14세 기준", "기본증명서"],
+        situation: "미성년자 본인이 본인 명의 예금 신규 신청",
+        need: ["실명확인증표", "학생증, 여권, 청소년증, 청소년증 발급신청 확인서", "실명확인증표에 주민번호 뒷자리가 없으면 주민등록초본 또는 기본증명서 추가 필요"],
+        keep: ["실명확인증표 사본"],
+        check: ["만 14세 이상/미만 여부", "실명확인증표 유효성", "주민번호 뒷자리 표시 여부"],
+        caution: "만 14세 미만 단독 신청은 법정대리인 동의 또는 대리 신청 필요 여부를 업무 기준에 따라 확인"
+      },
+      {
+        applicant: "가족",
+        work: "추가 확인",
+        pointTags: ["가족관계증명서", "부모 양방 확인"],
+        situation: "할머니, 할아버지 등 가족이 신청",
+        need: ["가족관계증명서", "친권자 관련 확인서류", "업무 기준상 추가 요구서류"],
+        keep: ["친권자 관련 확인서류", "가족관계확인서류", "업무 기준에 따른 보관서류"],
+        check: ["조부모는 단순 가족관계만으로 법정대리인 권한이 인정되지 않을 수 있음", "가족관계증명서 발급 기준자 확인", "친권자 동의 또는 법정대리인 확인 필요 여부"],
+        caution: "가족관계 확인과 대리 권한 확인은 별도로 판단"
+      },
+      {
+        applicant: "법정대리인",
+        work: "예금 신규",
+        pointTags: ["가족관계증명서", "부모 양방 확인"],
+        situation: "법정대리인이 미성년자 명의 업무 신청",
+        need: ["법정대리인의 실명확인증표", "미성년자 본인의 실명확인증표", "법정대리인 확인서류"],
+        keep: ["본인과 대리인의 실명확인증표 사본", "법정대리인 확인서류"],
+        check: ["법정대리인 여부가 서류상 명확히 확인되는지", "부모 양방 동의 또는 확인서류 필요 여부"],
+        caution: "법정대리인은 일반적으로 등록 친권자인 부모를 의미"
+      },
+      {
+        applicant: "법정대리인",
+        work: "예금 해지",
+        pointTags: ["부모 양방 확인", "가족관계증명서"],
+        situation: "미성년자 예금 해지 요청",
+        need: ["법정대리인 확인서류", "업무 기준상 요구되는 서류", "부모 양방 동의 또는 관련 확인서류 필요 여부 확인"],
+        keep: ["법정대리인 확인서류", "업무 기준에 따른 보관서류"],
+        check: ["해지 업무는 신규보다 엄격한 기준 적용 가능", "부모 양방 확인 가능성", "내부 기준 확인 필요"],
+        caution: "예금 해지는 별도 기준 확인이 필요할 수 있음"
+      }
+    ];
+
+    const cases = [
+      {
+        title: "만 15세 미성년자 본인 방문 예금 신규",
+        type: "본인",
+        situation: "만 15세 명의인이 혼자 방문해 입출금통장 신규 요청",
+        point: ["만 14세 이상 여부", "실명확인증표 유효성", "실명확인증표 주민번호 뒷자리 표시 여부"],
+        need: ["학생증, 여권, 청소년증 등 실명확인증표", "실명확인증표에 주민번호 뒷자리가 없으면 주민등록초본 또는 기본증명서 추가"],
+        keep: ["실명확인증표 사본"],
+        opinion: "본인 확인이 가능하고 내부 기준상 제한이 없으면 처리 가능 검토",
+        caution: "업무 기준에 따라 추가 확인 필요"
+      },
+      {
+        title: "모친 대리 방문 미성년자 예금 신규",
+        type: "대리",
+        situation: "어머니가 자녀 명의 예금 신규를 위해 방문",
+        point: ["대리인 실명확인증표", "자녀 실명확인증표", "법정대리인 확인서류"],
+        need: ["대리인의 실명확인증표", "미성년자의 실명확인증표", "가족관계확인서류"],
+        keep: ["대리인 실명확인증표 사본", "가족관계확인서류"],
+        opinion: "친권자 여부가 서류상 명확하면 처리 가능 여부 검토",
+        caution: "친권자 여부와 법정대리인 확인서류 필요 여부는 업무 기준에 따라 확인"
+      },
+      {
+        title: "조부모 방문 손자 명의 예금 신규",
+        type: "가족",
+        situation: "할머니가 손자 명의 통장 신규를 요청",
+        point: ["가족관계증명서 발급 기준자", "법정대리인 권한", "친권자 동의 필요 여부"],
+        need: ["가족관계증명서", "친권자 관련 확인서류", "업무 기준상 추가 요구서류"],
+        keep: ["친권자 관련 확인서류", "가족관계확인서류", "업무 기준에 따른 보관서류"],
+        opinion: "단순 조부모 관계만으로 대리 권한 인정 여부를 단정하지 않고 내부 기준 확인",
+        caution: "가족 방문 시 법정대리인 권한 확인 필요"
+      },
+      {
+        title: "친부 방문이나 가족관계증명서상 관계 불명확",
+        type: "대리",
+        situation: "친부가 방문했지만 서류상 부모 관계가 명확하지 않음",
+        point: ["생부와 자녀 관계", "친권자 여부", "기본증명서 등 추가 확인"],
+        need: ["가족관계증명서", "기본증명서 등 추가 서류", "친권자 확인서류"],
+        keep: ["확인서류 사본", "업무 기준에 따른 보관서류"],
+        opinion: "관계 및 친권 여부가 명확해야 처리 가능 여부 검토",
+        caution: "서류상 불명확하면 추가 확인 필요"
+      },
+      {
+        title: "미성년자 예금 해지 요청",
+        type: "해지",
+        situation: "미성년자 명의 예금 해지 업무 요청",
+        point: ["업무 유형이 해지인지", "부모 양방 확인 가능성", "법정대리인 확인"],
+        need: ["법정대리인 확인서류", "부모 양방 동의 또는 관련 확인서류 필요 여부 확인", "업무 기준상 요구되는 서류"],
+        keep: ["법정대리인 확인서류", "업무 기준에 따른 보관서류"],
+        opinion: "신규보다 엄격한 기준이 적용될 수 있어 내부 기준 확인 필요",
+        caution: "미성년자 예금 해지는 부모 양방 확인 가능성을 검토"
+      }
+    ];
+
+    const terms = [
+      ["명의인", "계좌 또는 업무의 대상이 되는 사람"],
+      ["신청인", "실제로 창구에 방문하거나 신청하는 사람"],
+      ["법정대리인", "일반적으로 등록 친권자인 부모"],
+      ["친권자", "미성년자의 법률행위에 동의하거나 대리할 수 있는 사람"],
+      ["가족관계확인서류", "가족관계증명서, 기본증명서 등 관계와 친권 여부를 확인하기 위한 서류"],
+      ["보관서류", "업무 처리 후 기관이 사본 또는 증빙 형태로 보관해야 하는 서류"],
+      ["예금 신규", "미성년자 명의 예금 또는 입출금통장을 새로 개설하는 업무"],
+      ["예금 해지", "기존 예금을 종료하는 업무로 신규보다 추가 확인이 필요할 수 있는 업무"],
+      ["실명확인증표", "명의인 또는 신청인의 실명 확인에 사용하는 증표"],
+      ["보완서류", "현재 제출 서류만으로 판단이 어려워 추가로 확인해야 하는 서류"],
+      ["부모 양방 확인", "부와 모 양측의 동의 또는 확인 필요 여부를 검토하는 절차"],
+      ["발급 기준자", "가족관계증명서에서 관계 확인 범위를 결정하는 기준이 되는 사람"],
+      ["내부 업무 기준 확인", "처리 가능 여부가 단정되지 않아 기관의 업무 기준을 추가 확인해야 하는 상태"]
+    ];
+
+    const submittedDocs = ["미성년자 실명확인증표", "대리인 실명확인증표", "가족관계증명서", "기본증명서", "주민등록초본", "법정대리인 확인서류", "친권자 관련 확인서류", "미성년후견 관련 서류", "부모 양방 동의 또는 확인서류"];
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+    const ul = (items) => `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
+
+    function initLogin() {
+      $("#loginForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const ok = $("#loginId").value === "IBK찬란" && $("#loginPw").value === "5whchlrh!";
+        if (!ok) {
+          $("#loginError").textContent = "아이디 또는 비밀번호를 확인해주세요.";
+          return;
+        }
+        $("#loginError").textContent = "";
+        $("#loginPage").classList.add("hidden");
+        $("#app").classList.remove("hidden");
+        switchTab("main");
+      });
+      $("#logoutBtn").addEventListener("click", () => {
+        $("#app").classList.add("hidden");
+        $("#loginPage").classList.remove("hidden");
+        $("#loginPw").value = "";
+        $("#loginId").focus();
+      });
+    }
+
+    function renderTabs() {
+      const html = tabs.map(([id, label]) => `<button type="button" class="tab-button" data-tab="${id}">${label}</button>`).join("");
+      $("#sideTabs").innerHTML = html;
+      $("#mobileTabs").innerHTML = html;
+      $$("[data-tab]").forEach((btn) => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
+    }
+
+    function switchTab(id) {
+      $$(".view").forEach((view) => view.classList.remove("active"));
+      $(`#view-${id}`).classList.add("active");
+      $$("[data-tab]").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === id));
+      const tab = tabs.find((item) => item[0] === id);
+      $("#viewTitle").textContent = tab[1];
+      $("#viewCaption").textContent = tab[2];
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderMain() {
+      $("#view-main").innerHTML = `
+        <div class="grid-4">
+          ${[
+            ["금일 미성년자 예금 신규 건수", "18", "전일 대비 +3"],
+            ["금일 대리인 신청 건수", "11", "친권자 신청 7건"],
+            ["보완서류 요청 건수", "4", "기본증명서 확인 포함"],
+            ["처리 보류 건수", "2", "내부 기준 확인 중"]
+          ].map(([label, value, note]) => `<div class="metric-card"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>`).join("")}
+        </div>
+        <div class="quick-actions">
+          <button class="btn primary" data-jump="docs">서류 기준 확인</button>
+          <button class="btn secondary" data-jump="sim">신규 업무 시뮬레이션</button>
+          <button class="btn secondary" data-jump="cases">케이스 검토</button>
+        </div>
+        <div class="layout-main">
+          <div class="panel">
+            <div class="section-head"><h2>최근 예금 신규 관련 정보</h2><span class="badge dark">최근 처리</span></div>
+            <div class="status-list">
+              ${[
+                ["만 15세 본인 방문", "입출금통장 신규", "가입 가능", "done"],
+                ["모친 대리 방문", "미성년자 예금 신규", "보완서류 필요", "check"],
+                ["조부모 방문", "손자 명의 신규 요청", "내부 기준 확인 필요", "check"],
+                ["미성년자 예금 해지 요청", "부모 양방 확인 필요", "보류", "hold"],
+                ["본인 확인서류 미제출", "예금 신규 접수", "처리 불가", "hold"]
+              ].map(([a,b,c,s]) => `<div class="status-item"><div><strong>${a}</strong><span>${b}</span></div><span class="badge ${s}">${c}</span></div>`).join("")}
+            </div>
+          </div>
+          <div class="panel">
+            <div class="section-head"><h2>업무 알림</h2><span class="badge check">유의</span></div>
+            <div class="notice-list">
+              ${[
+                "실명확인증표에 주민번호 뒷자리가 없는 경우 주민등록초본 또는 기본증명서 추가 확인 필요",
+                "가족관계증명서는 발급 기준자에 따라 확인 가능한 관계가 달라질 수 있음",
+                "미성년자 예금 해지 업무는 신규보다 추가 확인이 필요할 수 있음",
+                "가족 방문 시 법정대리인 권한 확인 필요"
+              ].map((item) => `<div class="notice">${item}</div>`).join("")}
+            </div>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:14px">
+          <div class="section-head"><h2>최근 확인한 기준</h2><span class="badge">빠른 참고</span></div>
+          <div class="criteria-list grid-3">
+            ${["만 14세 이상 본인 신청", "법정대리인 대리 신청", "가족 신청", "법정대리인 확인", "예금 해지 시 부모 양방 확인"].map((item) => `<button class="criteria-pill" data-jump="docs">${item}</button>`).join("")}
+          </div>
+        </div>
+      `;
+      $$("[data-jump]").forEach((btn) => btn.addEventListener("click", () => switchTab(btn.dataset.jump)));
+    }
+
+    function renderDocs() {
+      $("#view-docs").innerHTML = `
+        <div class="panel">
+          <div class="section-head">
+            <div><h2>서류 기준표</h2><p class="muted">검색어와 필터를 조합해 신청인 유형별 필요서류와 보관서류를 확인합니다.</p></div>
+            <span class="badge">필요서류 / 보관서류 구분</span>
+          </div>
+          <div class="filters">
+            <input id="docSearch" placeholder="상황, 서류, 확인사항 검색" />
+            <select id="applicantFilter">
+              <option value="">신청인 유형 전체</option>
+              <option>미성년자 본인</option><option>가족</option><option>법정대리인</option>
+            </select>
+            <select id="workFilter">
+              <option value="">업무 유형 전체</option>
+              <option>예금 신규</option><option>예금 해지</option><option>추가 확인</option>
+            </select>
+            <select id="pointFilter">
+              <option value="">확인 포인트 전체</option>
+              <option>만 14세 기준</option><option>가족관계증명서</option><option>기본증명서</option><option>부모 양방 확인</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>신청인 유형</th><th>상황</th><th>필요서류</th><th>보관서류</th><th>주요 확인사항</th><th>업무상 유의사항</th></tr></thead>
+              <tbody id="docTable"></tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      ["docSearch", "applicantFilter", "workFilter", "pointFilter"].forEach((id) => $(`#${id}`).addEventListener("input", filterDocs));
+      filterDocs();
+    }
+
+    function filterDocs() {
+      const keyword = ($("#docSearch")?.value || "").trim();
+      const applicant = $("#applicantFilter")?.value || "";
+      const work = $("#workFilter")?.value || "";
+      const point = $("#pointFilter")?.value || "";
+      const rows = docRows.filter((row) => {
+        const text = [row.applicant, row.work, row.situation, ...row.need, ...row.keep, ...row.check, row.caution].join(" ");
+        return (!keyword || text.includes(keyword)) &&
+          (!applicant || row.applicant === applicant) &&
+          (!work || row.work === work) &&
+          (!point || row.pointTags.includes(point));
+      });
+      $("#docTable").innerHTML = rows.length ? rows.map((row) => `
+        <tr>
+          <td><strong>${row.applicant}</strong><br><span class="badge">${row.work}</span></td>
+          <td>${row.situation}</td>
+          <td>${ul(row.need)}</td>
+          <td>${ul(row.keep)}</td>
+          <td>${ul(row.check)}</td>
+          <td>${row.caution}</td>
+        </tr>
+      `).join("") : `<tr><td colspan="6">검색 조건에 맞는 기준이 없습니다.</td></tr>`;
+    }
+
+    function renderSimulator() {
+      $("#view-sim").innerHTML = `
+        <div class="sim-grid">
+          <div class="panel">
+            <div class="step-label"><span class="step-no">1</span>현재 상황 입력</div>
+            <div class="form-grid">
+              <div class="field"><label>명의인 나이</label><input id="age" type="number" min="0" value="15" /></div>
+              <div class="field"><label>신청인 유형</label><select id="simApplicant"><option>미성년자 본인</option><option>가족</option><option>법정대리인(친권자)</option><option>법정대리인(미성년후견인)</option><option>기타</option></select></div>
+              <div class="field"><label>기타 신청인 상세</label><input id="otherApplicant" placeholder="기타 선택 시 직접 입력" /></div>
+              <div class="field"><label>신청인과 명의인의 관계</label><select id="relation"><option>본인</option><option>모</option><option>부</option><option>조부모</option><option>기타 가족</option><option>후견인</option><option>기타</option></select></div>
+              <div class="field"><label>업무 유형</label><select id="simWork"><option>예금 신규</option><option>예금 해지</option><option>기타 확인</option></select></div>
+              <div class="field"><label>실명확인증표 주민번호 뒷자리</label><select id="studentNo"><option>표시됨</option><option>표시 안 됨</option></select></div>
+              <div class="field"><label>가족관계증명서 발급 기준자</label><select id="familyBase"><option>부</option><option>모</option><option>조부모</option><option>기타</option><option selected>해당 없음</option></select></div>
+              <div class="field"><label>부모 양방 확인 여부</label><select id="bothParents"><option>해당 없음</option><option>확인됨</option><option>일부만 확인됨</option><option>확인 안 됨</option></select></div>
+            </div>
+            <div class="step-label"><span class="step-no">3</span>제출서류 선택/검토</div>
+            <div class="check-grid">
+              ${submittedDocs.map((doc) => `<label class="check-option"><input type="checkbox" value="${doc}" class="docCheck"><span>${doc}</span></label>`).join("")}
+            </div>
+          </div>
+          <div class="result-stack">
+            <div class="result-box">
+              <div class="step-label"><span class="step-no">2</span>자동 판단 결과</div>
+              <div class="decision-banner" id="decisionBanner"></div>
+            </div>
+            <div class="result-box">
+              <h4>판단 사유</h4>
+              <div id="autoPoints"></div>
+            </div>
+            <div class="result-box">
+              <div class="step-label"><span class="step-no">4</span>서류 상태</div>
+              <div class="doc-status" id="docStatus"></div>
+            </div>
+            <div class="result-summary-grid">
+              <div class="result-box">
+                <h4>제출 확인된 서류</h4>
+                <div id="submittedList" class="muted"></div>
+              </div>
+              <div class="result-box">
+                <h4>보완 필요 서류</h4>
+                <div id="supplementList" class="muted"></div>
+              </div>
+              <div class="result-box">
+                <h4>보관 필요 서류</h4>
+                <div id="keepList" class="muted"></div>
+              </div>
+              <div class="result-box">
+                <h4>추가 확인사항</h4>
+                <div id="extraList" class="muted"></div>
+              </div>
+            </div>
+          </div>
+          <div class="result-box report-panel">
+            <h4>실시간 업무 메모 요약</h4>
+            <div class="report" id="report">입력값과 제출서류 변경 시 업무 메모가 자동 갱신됩니다.</div>
+          </div>
+        </div>
+      `;
+      $$("#view-sim .field input, #view-sim .field select").forEach((input) => input.addEventListener("input", () => {
+        $$(".docCheck").forEach((box) => { box.checked = false; });
+        updateSim();
+      }));
+      $$(".docCheck").forEach((input) => input.addEventListener("change", updateSim));
+      updateSim();
+    }
+
+    function requiredDocsForSim() {
+      const applicant = $("#simApplicant").value;
+      const work = $("#simWork").value;
+      const base = ["미성년자 실명확인증표"];
+      if (applicant !== "미성년자 본인") base.push("대리인 실명확인증표", "가족관계증명서");
+      if (applicant === "가족") base.push("친권자 관련 확인서류");
+      if (applicant === "법정대리인(친권자)") base.push("법정대리인 확인서류");
+      if (applicant === "법정대리인(미성년후견인)") base.push("미성년후견 관련 서류");
+      if ($("#studentNo").value === "표시 안 됨") base.push("주민등록초본 또는 기본증명서");
+      if (work === "예금 해지") base.push("부모 양방 동의 또는 확인서류");
+      return [...new Set(base)];
+    }
+
+    function updateSim() {
+      const age = Number($("#age").value || 0);
+      const applicant = $("#simApplicant").value;
+      const otherApplicant = ($("#otherApplicant")?.value || "").trim();
+      const relation = $("#relation").value;
+      const work = $("#simWork").value;
+      const studentNo = $("#studentNo").value;
+      const familyBase = $("#familyBase").value;
+      const bothParents = $("#bothParents").value;
+      const selected = $$(".docCheck:checked").map((item) => item.value);
+      const required = requiredDocsForSim();
+      const hasMinorId = selected.includes("미성년자 실명확인증표");
+      const hasAgentId = selected.includes("대리인 실명확인증표");
+      const hasFamily = selected.includes("가족관계증명서");
+      const hasBasic = selected.includes("기본증명서");
+      const hasResident = selected.includes("주민등록초본");
+      const hasLegal = selected.includes("법정대리인 확인서류");
+      const hasCustody = selected.includes("친권자 관련 확인서류");
+      const hasGuardian = selected.includes("미성년후견 관련 서류");
+      const hasBothParents = selected.includes("부모 양방 동의 또는 확인서류");
+      const reasons = [];
+      const supplement = [];
+      const internalChecks = [];
+      let decision = "예금 신규 가입 가능";
+      let badgeClass = "done";
+      if ($("#otherApplicant")) {
+        $("#otherApplicant").disabled = applicant !== "기타";
+      }
+
+      if (!hasMinorId) supplement.push("미성년자 실명확인증표");
+      if (applicant !== "미성년자 본인" && !hasAgentId) supplement.push("대리인 실명확인증표");
+      if (applicant !== "미성년자 본인" && !hasFamily) supplement.push("가족관계증명서");
+      if (studentNo === "표시 안 됨" && !hasResident && !hasBasic) supplement.push("주민등록초본 또는 기본증명서");
+      if (applicant === "법정대리인(친권자)" && !hasLegal) supplement.push("법정대리인 확인서류");
+      if (applicant === "가족" && !hasCustody) supplement.push("친권자 관련 확인서류");
+      if (applicant === "법정대리인(미성년후견인)" && !hasGuardian) supplement.push("미성년후견 관련 서류");
+
+      if (age < 14 && applicant === "미성년자 본인") {
+        reasons.push("만 14세 미만 단독 방문 건으로 법정대리인 동의 또는 대리 신청 확인이 필요합니다.");
+        internalChecks.push("만 14세 미만 단독 신청 가능 여부");
+      } else if (age >= 14 && applicant === "미성년자 본인") {
+        reasons.push("만 14세 이상 본인 방문 건으로 실명확인증표 확인 여부를 기준으로 판단합니다.");
+      }
+      if (studentNo === "표시 안 됨") reasons.push("실명확인증표에 주민번호 뒷자리가 없어 주민등록초본 또는 기본증명서 보완 여부를 확인합니다.");
+      if (["법정대리인(친권자)", "법정대리인(미성년후견인)"].includes(applicant)) {
+        reasons.push("신청인과 명의인의 관계 및 친권자·법정대리인 여부가 서류상 명확한지 확인합니다.");
+      }
+      if (applicant === "법정대리인(친권자)" && ["모", "부"].includes(relation) && hasAgentId && hasMinorId && hasFamily) {
+        reasons.push(`${relation} 대리 방문이며 대리인 실명확인증표, 미성년자 실명확인증표, 가족관계확인서류가 확인되었습니다.`);
+      }
+      if (applicant === "가족" || relation === "조부모") {
+        reasons.push("가족 신청 건으로 법정대리인 권한 및 친권자 관련 확인서류 확인이 필요합니다.");
+        internalChecks.push("가족관계증명서 발급 기준자 확인");
+        internalChecks.push("법정대리인 권한 또는 친권자 동의 필요 여부");
+      }
+      if (familyBase !== "해당 없음") {
+        internalChecks.push(`가족관계증명서 발급 기준자: ${familyBase}`);
+      }
+      if (work === "예금 해지") {
+        reasons.push("예금 해지는 신규보다 엄격한 기준이 적용될 수 있으며 부모 양방 확인 또는 관련 확인서류가 필요할 수 있습니다.");
+        internalChecks.push("예금 해지 별도 기준");
+        if (bothParents !== "확인됨" && !hasBothParents) supplement.push("부모 양방 동의 또는 확인서류");
+      }
+      if (applicant === "기타" || relation === "기타") {
+        internalChecks.push(`기타 신청인 또는 기타 관계 처리 기준${otherApplicant ? `(${otherApplicant})` : ""}`);
+      }
+      const blockingInternal = work === "예금 해지" || applicant === "가족" || relation === "조부모" || applicant === "기타" || relation === "기타" || (age < 14 && applicant === "미성년자 본인");
+      if (!hasMinorId && applicant === "미성년자 본인") {
+        decision = "처리 불가";
+        badgeClass = "hold";
+        reasons.push("필수 실명확인증표가 누락되어 본인 확인이 어렵습니다.");
+      } else if (blockingInternal) {
+        decision = supplement.length ? "보완서류 필요" : "내부 업무 기준 확인 필요";
+        badgeClass = supplement.length ? "check" : "";
+      } else if (supplement.length) {
+        decision = "보완서류 필요";
+        badgeClass = "check";
+      }
+      if (decision === "예금 신규 가입 가능") {
+        reasons.push("제출서류 기준상 큰 누락이 없어 예금 신규 가입 가능으로 판단됩니다.");
+      }
+
+      $("#decisionBanner").innerHTML = `<span class="badge ${badgeClass}">${decision}</span><strong>${decision}</strong><p>${reasons[0] || "입력값을 기준으로 업무 가능 여부를 검토합니다."}</p>`;
+      $("#autoPoints").innerHTML = ul(reasons);
+      $("#docStatus").innerHTML = required.map((doc) => {
+        const done = doc === "주민등록초본 또는 기본증명서" ? hasResident || hasBasic : selected.includes(doc);
+        const status = done ? ["제출 확인", "done"] : internalChecks.some((item) => doc.includes(item)) || doc.includes("동의") ? ["내부 기준 확인", ""] : ["보완 필요", "check"];
+        return `<div class="doc-row"><strong>${doc}</strong><span class="badge ${status[1]}">${status[0]}</span></div>`;
+      }).join("") + selected.filter((doc) => !required.includes(doc)).map((doc) => `<div class="doc-row"><strong>${doc}</strong><span class="badge">보관 필요</span></div>`).join("") + internalChecks.map((item) => `<div class="doc-row"><strong>${item}</strong><span class="badge">내부 기준 확인</span></div>`).join("");
+
+      const confirmed = selected.length ? selected.join(", ") : "없음";
+      const keepDocs = selected.filter((doc) => ["미성년자 실명확인증표", "대리인 실명확인증표", "가족관계증명서", "기본증명서", "법정대리인 확인서류", "친권자 관련 확인서류", "미성년후견 관련 서류", "부모 양방 동의 또는 확인서류"].includes(doc));
+      const uniqueSupplement = [...new Set(supplement)];
+      const uniqueChecks = [...new Set(internalChecks)];
+      $("#submittedList").innerHTML = selected.length ? ul(selected) : "제출 확인된 서류 없음";
+      $("#supplementList").innerHTML = uniqueSupplement.length ? ul(uniqueSupplement) : "보완 필요 서류 없음";
+      $("#keepList").innerHTML = keepDocs.length ? ul(keepDocs) : "보관 필요 서류 없음";
+      $("#extraList").innerHTML = uniqueChecks.length ? ul(uniqueChecks) : "추가 확인사항 없음";
+      $("#report").textContent =
+`[예금 업무지원시스템 업무 처리 메모]
+명의인 나이: 만 ${age}세
+신청인 유형: ${applicant}
+기타 신청인 상세: ${applicant === "기타" ? (otherApplicant || "미입력") : "해당 없음"}
+신청인 관계: ${relation}
+업무 유형: ${work}
+가족관계증명서 발급 기준자: ${familyBase}
+부모 양방 확인 여부: ${bothParents}
+
+최종 판단 결과: ${decision}
+판단 사유: ${reasons.join(" / ")}
+제출 확인 서류: ${confirmed}
+보완 필요 서류: ${uniqueSupplement.length ? uniqueSupplement.join(", ") : "없음"}
+보관 필요 서류: ${keepDocs.length ? keepDocs.join(", ") : "제출서류 선택 필요"}
+추가 확인사항: ${uniqueChecks.length ? uniqueChecks.join(", ") : "없음"}
+
+내부 메모: 미성년자 나이, 법정대리인 여부, 가족관계증명서 발급 기준자, 부모 양방 확인 가능성을 기준으로 검토함. 불확실한 사항은 업무 기준에 따라 추가 확인 필요.`;
+    }
+
+    function renderCases(type = "전체") {
+      const types = ["전체", "본인", "대리", "가족", "해지"];
+      const filtered = type === "전체" ? cases : cases.filter((item) => item.type === type);
+      $("#view-cases").innerHTML = `
+        <div class="case-tools">${types.map((item) => `<button class="case-filter ${item === type ? "active" : ""}" data-case-type="${item}">${item}</button>`).join("")}</div>
+        <div class="case-grid">
+          ${filtered.map((item) => `
+            <article class="case-card">
+              <span class="badge">${item.type}</span>
+              <h3>${item.title}</h3>
+              <p>${item.situation}</p>
+              <dl>
+                <div><dt>핵심 확인 포인트</dt><dd>${ul(item.point)}</dd></div>
+                <div><dt>필요서류</dt><dd>${ul(item.need)}</dd></div>
+                <div><dt>보관서류</dt><dd>${ul(item.keep)}</dd></div>
+                <div><dt>처리 의견</dt><dd>${item.opinion}</dd></div>
+                <div><dt>유의사항</dt><dd>${item.caution}</dd></div>
+              </dl>
+            </article>
+          `).join("")}
+        </div>
+      `;
+      $$("[data-case-type]").forEach((btn) => btn.addEventListener("click", () => renderCases(btn.dataset.caseType)));
+    }
+
+    function renderTerms() {
+      $("#view-terms").innerHTML = `
+        <div class="terms-header">
+          <input id="termSearch" placeholder="용어 검색" />
+          <span class="badge">업무 중 빠른 참고</span>
+        </div>
+        <div class="term-grid" id="termGrid"></div>
+      `;
+      $("#termSearch").addEventListener("input", filterTerms);
+      filterTerms();
+    }
+
+    function filterTerms() {
+      const keyword = ($("#termSearch")?.value || "").trim();
+      const rows = terms.filter(([term, desc]) => !keyword || term.includes(keyword) || desc.includes(keyword));
+      $("#termGrid").innerHTML = rows.map(([term, desc]) => `<article class="term-card"><strong>${term}</strong><p>${desc}</p></article>`).join("");
+    }
+
+    initLogin();
+    renderTabs();
+    renderMain();
+    renderDocs();
+    renderSimulator();
+    renderCases();
+    renderTerms();
+  </script>
+</body>
+</html>
